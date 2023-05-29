@@ -27,6 +27,33 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
+# Celery Configuration
+CELERY_BROKER_URL = 'redis://localhost:6379/0'
+CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'
+
+# Celery Beat Configuration
+CELERY_BEAT_SCHEDULER = 'django_celery_beat.schedulers:DatabaseScheduler'
+
+# Celery Configuration
+import os
+from celery import Celery
+
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'quiz_app.settings')
+
+app = Celery('quiz_app')
+app.config_from_object('django.conf:settings', namespace='CELERY')
+app.autodiscover_tasks()
+
+
+# Celery Beat Configuration
+from celery.schedules import crontab
+
+CELERY_BEAT_SCHEDULE = {
+    'update-quiz-status': {
+        'task': 'quizzes.tasks.update_quiz_status',
+        'schedule': crontab(minute=0, hour='*/1'),  # Runs every hour
+    },
+}
 
 # Application definition
 
@@ -38,6 +65,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'quizzes',
+    'django_celery_beat',
 ]
 
 MIDDLEWARE = [

@@ -1,0 +1,7 @@
+
+celerybeat-schedule = {
+    'update-quiz-status': {
+        'task': 'quizzes.tasks.update_quiz_status',
+        'schedule': crontab(minute=0, hour='*/1'),  
+    },
+}
